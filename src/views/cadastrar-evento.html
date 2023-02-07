@@ -1,0 +1,154 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+        <title>Eventos Academicos - Novo Evento</title>
+    </head>
+<body>
+  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Eventos Academicos</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/cadastrar/evento">Cadastrar evento</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Inscrição: {{ evento.nome }}</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container">
+          <form method="post"> 
+              <div class="mb-3">
+                <label for="nomeOuvinte" class="form-label">Nome</label>
+                <input class="form-control" id="nomeOuvinte" name="nomeOuvinte">
+              </div>
+              <div class="mb-3">
+                <label for="telefoneOuvinte" class="form-label">Telefone</label>
+                <input type="tel" class="form-control" id="telefoneOuvinte" name="telefoneOuvinte">
+              </div>
+              
+              <div class="mb-3">
+                  <label for="emailOuvinte" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="emailOuvinte" name="emailOuvinte">
+                </div>
+              
+                <input hidden name="action" value="cadastraOuvinte" />
+               <input hidden name="eventoId" value="{{ evento.id }}" >
+               <button type="submit" class="btn btn-primary form-control">Inscrever-se</button>
+
+            </form>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <div class="container">
+      {% if successMessage %}
+      <div class="alert alert-success" role="alert">
+        {{ successMessage }}
+      </div>
+      {% endif %}
+    <form method="post">
+        <div class="mb-3">
+          <label for="nomeEvento" class="form-label">Nome</label>
+          <input required class="form-control" name="nomeEvento" value="{{ evento.nome }}" id="nomeEvento">
+        </div>
+        <div class="mb-3">
+          <label for="dataEvento" class="form-label">Data e hora</label>
+      
+          <input required type="datetime-local" class="form-control" value="{{ evento.dataHora }}" name="dataEvento" id="dataEvento">
+
+        </div>
+
+          <div class="mb-3">
+            <label for="siteEvento" class="form-label">Website</label>
+            <input required type="url" class="form-control" value="{{ evento.urlSite }}" name="siteEvento" id="siteEvento">
+          </div>
+
+          <div class="mb-3">
+            <label for="descricaoEvento" class="form-label">Descrição</label>
+            <textarea required class="form-control" name="descricaoEvento" id="descricaoEvento">{{ evento.descricao }}</textarea>
+          </div>
+          <input hidden name="step" value="1" />
+          {% if evento.id %}
+          <h4>Palestrantes:</h4>
+          <div class="row row-cols-5">
+          {% for palestrante in palestrantes %}
+          <div class="col card p-1 m-1" style="width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title">{{ palestrante.nome }}</h5>
+              <p class="card-text">{{ palestrante.linkLattes }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+          {% endif %}
+
+        {% if evento.id %}
+        {% if edit %}
+        <button type="button" class="btn btn-primary form-control">
+          Salvar
+        </button>
+          {% else %}
+        <button type="button" class="btn btn-primary form-control" data-bs-toggle="modal" data-bs-target="#exampleModal">
+
+          Inscrever-se
+        </button>
+        <a href="/editar/evento?id={{evento.id}}" class="btn btn-primary form-control mt-2">Editar evento</a>
+
+        {% endif %}
+
+        {% else %}
+        <button type="submit" class="btn btn-primary form-control">Próximo</button>
+        {% endif %}
+      </form>
+    </div>
+</body>
+
+<script>
+  function datetimeLocal(datetime) {
+    const dt = new Date(datetime);
+    dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset());
+    return dt.toISOString().slice(0, 16);
+}
+  document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('dataEvento').value = datetimeLocal('{{ evento.dataHora }}');
+  {% if not edit %}
+    $("input").prop("disabled", true);
+    $("textarea").prop("disabled", true);
+
+    $("#nomeOuvinte").prop("disabled", false);
+    $("#telefoneOuvinte").prop("disabled", false);
+    $("#emailOuvinte").prop("disabled", false);
+
+  {% else %}
+    $("input").prop("required", true);
+    $("textarea").prop("required", true);
+  {% endif %}
+}, false);
+</script>
+</html>
